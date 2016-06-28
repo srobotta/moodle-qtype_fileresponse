@@ -72,7 +72,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         if ($answer) {
             $result .= html_writer::tag('div', $answer, array('class' => 'qtext'));
         }
-        
+
         /* how many files are expected, already uploaded and saved ? */
         $filecount = $this->get_already_uploaded_files_number($qa, $options);
 
@@ -89,7 +89,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                 $result .= html_writer::tag('div', get_string('nattachmentsexpected', 'qtype_fileresponse', $expected_attachments), array('class' => 'answer'));
                 break;
         }
-        
+
         if ($expected_attachments == -1) { /* unlimited number, but at least one attachment expected */
             switch ($filecount) {
                 case 0: /* no file of unlimited submitted */
@@ -149,7 +149,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                     'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
 			$returnfiles[$file->get_filepath() . $file->get_filename()] = $file;
 			$itemid = $file->get_itemid();
-		
+
         }
 		if (count($returnfiles) > 0) {
 			$step = $qa->get_last_step_with_qt_var('answer');
@@ -158,9 +158,9 @@ class qtype_fileresponse_renderer extends qtype_renderer {
 			$output[] = html_writer::tag('hr','');
             $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($final_zipped_file),
                     $this->output->pix_icon(file_file_icon($final_zipped_file), get_mimetype_description($final_zipped_file),
-                    'moodle', array('class' => 'icon')) . ' ' . s($final_zipped_file->get_filename())));			
-		}	
-		
+                    'moodle', array('class' => 'icon')) . ' ' . s($final_zipped_file->get_filename())));
+		}
+
         return implode($output);
     }
 
@@ -186,7 +186,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid(
                 'attachments', $options->context->id);
         $pickeroptions->allowpickerplugins = $allowpickerplugins;
-        
+
         if ($forcedownload) { /* don't download fix */
             require_once('fileresponsesimplifiedfilemanager.php'); /* don't download fix */
             $frsfm = new form_fileresponsesimplifiedfilemanager($pickeroptions);
