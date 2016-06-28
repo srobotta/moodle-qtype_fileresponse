@@ -135,14 +135,32 @@ class qtype_fileresponse_renderer extends qtype_renderer {
      *      not be displayed. Used to get the context.
      */
     public function files_read_only(question_attempt $qa, question_display_options $options) {
-        $files = $qa->get_last_qt_files('attachments', $options->context->id);
+        $files = $qa->get_last_qt_files('attachments', $options->context->id);//print_r($options);exit;
         $output = array();
-
+		$returnfiles = array();
+		$zipper = new zip_packer();
+		$skipfile = 'all_files.zip';
         foreach ($files as $file) {
+			if (strtolower($file->get_filename()) == strtolower($skipfile)) {
+                continue;
+            }
             $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
                     $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
                     'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
+			$returnfiles[$file->get_filepath() . $file->get_filename()] = $file;
+			$itemid = $file->get_itemid();
+		
         }
+		if (count($returnfiles) > 0) {
+			$step = $qa->get_last_step_with_qt_var('answer');
+			$final_zipped_file = $zipper->archive_to_storage($returnfiles, $options->context->id, 'question', 'response_attachments', $itemid, '/qtype_fileresponse_zipped/', 'all_files.zip', $step->get_user_id());
+			// Add Zipped to all links
+			$output[] = html_writer::tag('hr','');
+            $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($final_zipped_file),
+                    $this->output->pix_icon(file_file_icon($final_zipped_file), get_mimetype_description($final_zipped_file),
+                    'moodle', array('class' => 'icon')) . ' ' . s($final_zipped_file->get_filename())));			
+		}	
+		
         return implode($output);
     }
 

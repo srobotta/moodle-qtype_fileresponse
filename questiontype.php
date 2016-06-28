@@ -201,7 +201,7 @@ class qtype_fileresponse extends question_type {
                  "</forcedownload>\n";
         $expout .= '    <allowpickerplugins>' . $question->options->allowpickerplugins .
                  "</allowpickerplugins>\n";
-		$files = $fs->get_area_files($contextid, 'qtype_fileresponse', 'graderinfo', $row->id);
+		$files = $fs->get_area_files($contextid, 'qtype_fileresponse', 'graderinfo', $question->id);
         $expout .= '    <graderinfo format="'.$question->options->graderinfoformat.'">' . $format->writetext($question->options->graderinfo);
 		$expout .= $format->write_files($files);
         $expout .= "</graderinfo>\n";
