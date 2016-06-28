@@ -54,7 +54,6 @@ class qtype_fileresponse extends question_type {
     public function save_question_options($formdata) {
         global $DB;
         $context = $formdata->context;
-
         $options = $DB->get_record('qtype_fileresponse_options', array('questionid' => $formdata->id));
         if (!$options) {
             $options = new stdClass();
@@ -174,5 +173,97 @@ class qtype_fileresponse extends question_type {
         parent::delete_files($questionid, $contextid);
         $fs = get_file_storage();
         $fs->delete_area_files($contextid, 'qtype_fileresponse', 'graderinfo', $questionid);
+    }
+
+    /**
+     * Provide export functionality for xml format.
+     *
+     * @param question object the question object
+     * @param format object the format object so that helper methods can be used
+     * @param extra mixed any additional format specific data that may be passed by the format (see
+     *        format code for info)
+     *
+     * @return string the data to append to the output buffer or false if error
+     */
+    public function export_to_xml($question, qformat_xml $format, $extra = null) {
+        $expout = '';
+        $fs = get_file_storage();
+        $contextid = $question->contextid;
+
+        // Set the additional fields.
+        $expout .= '    <responseformat>' . $question->options->responseformat .
+                 "</responseformat>\n";
+        $expout .= '    <responsefieldlines>' . $question->options->responsefieldlines .
+                 "</responsefieldlines>\n";
+        $expout .= '    <attachments>' . $question->options->attachments .
+				 "</attachments>\n";
+        $expout .= '    <forcedownload>' . $question->options->forcedownload .
+                 "</forcedownload>\n";
+        $expout .= '    <allowpickerplugins>' . $question->options->allowpickerplugins .
+                 "</allowpickerplugins>\n";
+		$files = $fs->get_area_files($contextid, 'qtype_fileresponse', 'graderinfo', $row->id);
+        $expout .= '    <graderinfo format="'.$question->options->graderinfoformat.'">' . $format->writetext($question->options->graderinfo);
+		$expout .= $format->write_files($files);
+        $expout .= "</graderinfo>\n";
+        $expout .= '    <graderinfoformat>' . $question->options->graderinfoformat .
+                 "</graderinfoformat>\n";
+
+        return $expout;
+    }
+
+    /**
+     * Provide import functionality for xml format.
+     *
+     * @param data mixed the segment of data containing the question
+     * @param question object question object processed (so far) by standard import code
+     * @param format object the format object so that helper methods can be used (in particular
+     *        error())
+     * @param extra mixed any additional format specific data that may be passed by the format (see
+     *        format code for info)
+     *
+     * @return object question object suitable for save_options() call or false if cannot handle
+     */
+    public function import_from_xml($data, $question, qformat_xml $format, $extra = null) {
+        // Check whether the question is for us.
+        if (!isset($data['@']['type']) || $data['@']['type'] != 'fileresponse') {
+            return false;
+        }
+
+        $question = $format->import_headers($data);
+        $question->qtype = 'fileresponse';
+
+        $question->responseformat = $format->getpath($data,
+        array('#', 'responseformat', 0, '#', 'text', 0, '#'
+        ), 'plain');
+        $question->responsefieldlines = $format->trans_single(
+        $format->getpath($data, array('#', 'responsefieldlines', 0, '#'
+        ), 1));
+        $question->attachments = $format->getpath($data,
+        array('#', 'attachments', 0, '#'
+        ), 0);
+        $question->forcedownload = $format->getpath($data,
+        array('#', 'forcedownload', 0, '#'
+        ), 0);
+        $question->allowpickerplugins = $format->getpath($data,
+        array('#', 'allowpickerplugins', 0, '#'
+        ), 0);
+		$question->graderinfo = array();
+        $question->graderinfo['text'] = $format->getpath($data,
+        array('#', 'graderinfo', 0, '#', 'text', 0, '#'
+        ), '', true);
+		$question->graderinfo['format'] = $format->getpath($data,
+        array('#', 'graderinfo', 0, '@', 'format'), 1);
+		// Restore files in graderinfo.
+		$files = $format->getpath($data, array('#', 'graderinfo', 0, '#', 'file'
+		), array(), false);
+		foreach ($files as $file) {
+			$filesdata = new stdclass();
+			$filesdata->content = $file['#'];
+			$filesdata->encoding = $file['@']['encoding'];
+			$filesdata->name = $file['@']['name'];
+			$question->graderinfo['files'][] = $filesdata;
+		}
+        $question->graderinfoformat = $format->getpath($data, array('#', 'graderinfoformat', 0, '#'), 1);
+        return $question;
     }
 }
