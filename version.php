@@ -26,7 +26,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qtype_fileresponse';
-$plugin->version   = 2016082800;
+$plugin->version   = 2016082900;
 
 $plugin->requires  = 2015050500;
 

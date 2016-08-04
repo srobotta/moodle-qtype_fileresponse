@@ -235,9 +235,9 @@ class qtype_fileresponse extends question_type {
         $question->responseformat = $format->getpath($data,
         array('#', 'responseformat', 0, '#', 'text', 0, '#'
         ), 'plain');
-        $question->responsefieldlines = $format->trans_single(
-        $format->getpath($data, array('#', 'responsefieldlines', 0, '#'
-        ), 1));
+        $question->responsefieldlines = $format->getpath($data,
+        		array('#', 'responsefieldlines', 0, '#'
+        ), 0);
         $question->attachments = $format->getpath($data,
         array('#', 'attachments', 0, '#'
         ), 0);
