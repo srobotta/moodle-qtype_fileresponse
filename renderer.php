@@ -57,7 +57,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                 $files = $this->files_input($qa, $question->attachments, $options,
                         $question->forcedownload, $question->allowpickerplugins);
             } else {
-                $files = $this->files_read_only($qa, $options);
+                $files = $this->files_read_only($qa, $options, $question);
             }
         }
 
@@ -181,12 +181,30 @@ class qtype_fileresponse_renderer extends qtype_renderer {
      * @param question_display_options $options controls what should and should
      *        not be displayed. Used to get the context.
      */
-    public function files_read_only(question_attempt $qa, question_display_options $options) {
-        $files = $qa->get_last_qt_files('attachments', $options->context->id); // print_r($options);exit;
+    public function files_read_only(question_attempt $qa, question_display_options $options, $question) {
+    	global $DB, $COURSE;
+        $files = $qa->get_last_qt_files('attachments', $options->context->id);
+        $step = $qa->get_last_step_with_qt_var('answer');
         $output = array();
         $returnfiles = array();
         $zipper = new zip_packer();
-        $skipfile = 'all_files.zip';
+        $student_name_qid_str = '_';
+		$examination_user = $DB->get_record('user', array('id' => $step->get_user_id()));
+		// Remove anything which isn't a word, whitespace, number
+		// or any of the following caracters -_~,;[]().
+		// If you don't need to handle multi-byte characters
+		// you can use preg_replace rather than mb_ereg_replace
+		$cleanedfname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $examination_user->firstname);
+		// Remove any runs of periods
+		$cleanedfname = mb_ereg_replace("([\.]{2,})", '', $cleanedfname);
+		$cleanedlname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $examination_user->lastname);
+		// Remove any runs of periods
+		$cleanedlname = mb_ereg_replace("([\.]{2,})", '', $cleanedlname);
+		
+		$student_name_qid_str .= $cleanedfname . '_' . $cleanedlname . '_' . $question->id;
+		
+        $skipfile = 'All_Files' . $student_name_qid_str . '.zip';
+        $infocreated = 0;
         foreach ($files as $file) {
             if (strtolower($file->get_filename()) == strtolower($skipfile)) {
                 continue;
@@ -199,12 +217,43 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                                     )) . ' ' . s($file->get_filename())));
             $returnfiles[$file->get_filepath() . $file->get_filename()] = $file;
             $itemid = $file->get_itemid();
+            
+            if (!$infocreated) {
+            	// Create info file.
+            	$infocontent = get_string('user') . ': ' . $examination_user->firstname . ' ' . $examination_user->lastname .PHP_EOL;
+            	$infocontent .=  get_string('email') . ': ' . $examination_user->email . ' (ID: ' . $examination_user->id .')'.PHP_EOL;
+            	$infocontent .=  get_string('question') . ': ' . $question->name . ' (ID: ' . $question->id .')'.PHP_EOL;
+            	$infocontent .=  get_string('course') . ': ' . $COURSE->fullname . ' (ID: ' . $COURSE->id .')';
+            
+            	$fs = get_file_storage();
+            
+            	// Prepare file record object
+            	$fileinfo = array(
+            			'contextid' => $options->context->id, // ID of context
+            			'component' => 'question',     // usually = table name
+            			'filearea' => 'response_attachments',     // usually = table name
+            			'itemid' => $itemid,               // usually = ID of row in table
+            			'filepath' => '/',           // any path beginning and ending in /
+            			'filename' => '_user_info.txt'); // any filename
+            
+            	// Create file containing text infocontent
+            	$v = $fs->create_file_from_string($fileinfo, $infocontent);
+            	$returnfiles[$v->get_filepath() . $v->get_filename()] = $v;
+            	// Get info file
+            	$infotxtfile = $fs->get_file($options->context->id, 'question', 'response_attachments', $itemid, '/', '_user_info.txt'); 
+            	$infocreated = 1;
+            }    
         }
         if (count($returnfiles) > 0) {
-            $step = $qa->get_last_step_with_qt_var('answer');
+        	
             $final_zipped_file = $zipper->archive_to_storage($returnfiles, $options->context->id,
                     'question', 'response_attachments', $itemid, '/qtype_fileresponse_zipped/',
-                    'all_files.zip', $step->get_user_id());
+                    $skipfile, $step->get_user_id());
+            // Delete info text if it exists
+            if ($infotxtfile) {
+            	$infotxtfile->delete();
+            	
+            }
             // Add Zipped to all links
             $output[] = html_writer::tag('hr', '');
             $output[] = html_writer::tag('p',
