@@ -220,10 +220,10 @@ class qtype_fileresponse_renderer extends qtype_renderer {
             
             if (!$infocreated) {
             	// Create info file.
-            	$infocontent = get_string('user') . ': ' . $examination_user->firstname . ' ' . $examination_user->lastname .PHP_EOL;
-            	$infocontent .=  get_string('email') . ': ' . $examination_user->email . ' (ID: ' . $examination_user->id .')'.PHP_EOL;
-            	$infocontent .=  get_string('question') . ': ' . $question->name . ' (ID: ' . $question->id .')'.PHP_EOL;
-            	$infocontent .=  get_string('course') . ': ' . $COURSE->fullname . ' (ID: ' . $COURSE->id .')';
+            	$infocontent = get_string('user') . ': ' . $examination_user->firstname . ' ' . $examination_user->lastname . " \r\n";
+            	$infocontent .=  get_string('email') . ': ' . $examination_user->email . ' (ID: ' . $examination_user->id .') ' . "\r\n";
+            	$infocontent .=  get_string('question') . ': ' . $question->name . ' (ID: ' . $question->id .') ' . "\r\n";
+            	$infocontent .=  get_string('course') . ': ' . $COURSE->fullname . ' (ID: ' . $COURSE->id .') ';
             
             	$fs = get_file_storage();
             
