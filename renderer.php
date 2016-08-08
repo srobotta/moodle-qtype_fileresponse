@@ -206,7 +206,8 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         $skipfile = 'All_Files' . $student_name_qid_str . '.zip';
         $infocreated = 0;
         foreach ($files as $file) {
-            if (strtolower($file->get_filename()) == strtolower($skipfile)) {
+           // if (strtolower($file->get_filename()) == strtolower($skipfile)) {
+        	if (strpos($file->get_filename(), 'All_Files_') !== false) { // Avoid Restore duplicates
                 continue;
             }
             $output[] = html_writer::tag('p',
