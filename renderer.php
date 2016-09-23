@@ -57,6 +57,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                 $files = $this->files_input($qa, $question->attachments, $options,
                         $question->forcedownload, $question->allowpickerplugins);
             } else {
+
                 $files = $this->files_read_only($qa, $options, $question);
             }
         }
@@ -91,7 +92,8 @@ class qtype_fileresponse_renderer extends qtype_renderer {
             default: /* two or three file required */
                 $result .= html_writer::tag('div',
                         get_string('nattachmentsexpected', 'qtype_fileresponse',
-                                $expected_attachments), array('class' => 'answer'
+                                $expected_attachments),
+                        array('class' => 'answer'
                         ));
                 break;
         }
@@ -107,13 +109,15 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                 case 1: /* exactly one file of unlimited submitted */
                     $result .= html_writer::tag('div',
                             get_string('oneattachmentsubmitted', 'qtype_fileresponse') .
-                                     "<br />&#160;<br />", array('class' => 'answer'
+                                     "<br />&#160;<br />",
+                                    array('class' => 'answer'
                                     ));
                     break;
                 default: /* exactly n > 1 files of unlimited submitted */
                     $result .= html_writer::tag('div',
                             get_string('nattachmentssubmitted', 'qtype_fileresponse', $filecount) .
-                                     "<br />&#160;<br />", array('class' => 'answer'
+                                     "<br />&#160;<br />",
+                                    array('class' => 'answer'
                                     ));
                     break;
             }
@@ -121,17 +125,20 @@ class qtype_fileresponse_renderer extends qtype_renderer {
             if ($filecount == 0) { /* no file of 1 submitted */
                 $result .= html_writer::tag('div',
                         get_string('noofoneattachmentsubmitted', 'qtype_fileresponse') .
-                                 "<br />&#160;<br />", array('class' => 'answer'
+                                 "<br />&#160;<br />",
+                                array('class' => 'answer'
                                 ));
             } elseif ($filecount == 1) { /* 1 file of 1 submitted */
                 $result .= html_writer::tag('div',
                         get_string('oneofoneattachmentsubmitted', 'qtype_fileresponse') .
-                                 "<br />&#160;<br />", array('class' => 'answer'
+                                 "<br />&#160;<br />",
+                                array('class' => 'answer'
                                 ));
             } else { /* this should not happen: $filecount larger than $expected_attachments */
                 $result .= html_writer::tag('div',
                         get_string('nattachmentssubmitted', 'qtype_fileresponse', $filecount) .
-                                 "<br />&#160;<br />", array('class' => 'answer'
+                                 "<br />&#160;<br />",
+                                array('class' => 'answer'
                                 ));
             }
         } else { /* exactly a certain amount (but more than one) of attachment expected */
@@ -156,15 +163,15 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                                                              */
                 $result .= html_writer::tag('div',
                         get_string('nattachmentssubmitted', 'qtype_fileresponse', $filecount) .
-                                 "<br />&#160;<br />", array('class' => 'answer'
+                                 "<br />&#160;<br />",
+                                array('class' => 'answer'
                                 ));
             } else { /* n > 1 files of n > 1 submitted yet */
                 $result .= html_writer::tag('div',
-                        $filecount .
-                                 get_string('ofnattachmentssubmitted', 'qtype_fileresponse',
-                                        $expected_attachments) . "<br />&#160;<br />",
-                                array('class' => 'answer'
-                                ));
+                        $filecount . get_string('ofnattachmentssubmitted', 'qtype_fileresponse',
+                                $expected_attachments) . "<br />&#160;<br />",
+                        array('class' => 'answer'
+                        ));
             }
         }
         $result .= html_writer::tag('div', $files, array('class' => 'attachments'
@@ -181,33 +188,37 @@ class qtype_fileresponse_renderer extends qtype_renderer {
      * @param question_display_options $options controls what should and should
      *        not be displayed. Used to get the context.
      */
-    public function files_read_only(question_attempt $qa, question_display_options $options, $question) {
-    	global $DB, $COURSE;
+    public function files_read_only(question_attempt $qa, question_display_options $options,
+            $question) {
+        global $DB, $COURSE;
         $files = $qa->get_last_qt_files('attachments', $options->context->id);
         $step = $qa->get_last_step_with_qt_var('answer');
         $output = array();
         $returnfiles = array();
         $zipper = new zip_packer();
         $student_name_qid_str = '_';
-		$examination_user = $DB->get_record('user', array('id' => $step->get_user_id()));
-		// Remove anything which isn't a word, whitespace, number
-		// or any of the following caracters -_~,;[]().
-		// If you don't need to handle multi-byte characters
-		// you can use preg_replace rather than mb_ereg_replace
-		$cleanedfname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $examination_user->firstname);
-		// Remove any runs of periods
-		$cleanedfname = mb_ereg_replace("([\.]{2,})", '', $cleanedfname);
-		$cleanedlname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '', $examination_user->lastname);
-		// Remove any runs of periods
-		$cleanedlname = mb_ereg_replace("([\.]{2,})", '', $cleanedlname);
-		
-		$student_name_qid_str .= $cleanedfname . '_' . $cleanedlname . '_' . $question->id;
-		
+        $examination_user = $DB->get_record('user', array('id' => $step->get_user_id()
+        ));
+        // Remove anything which isn't a word, whitespace, number
+        // or any of the following caracters -_~,;[]().
+        // If you don't need to handle multi-byte characters
+        // you can use preg_replace rather than mb_ereg_replace
+        $cleanedfname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '',
+                $examination_user->firstname);
+        // Remove any runs of periods
+        $cleanedfname = mb_ereg_replace("([\.]{2,})", '', $cleanedfname);
+        $cleanedlname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '',
+                $examination_user->lastname);
+        // Remove any runs of periods
+        $cleanedlname = mb_ereg_replace("([\.]{2,})", '', $cleanedlname);
+
+        $student_name_qid_str .= $cleanedfname . '_' . $cleanedlname . '_' . $question->id;
+
         $skipfile = 'All_Files' . $student_name_qid_str . '.zip';
         $infocreated = 0;
         foreach ($files as $file) {
-           // if (strtolower($file->get_filename()) == strtolower($skipfile)) {
-        	if (strpos($file->get_filename(), 'All_Files_') !== false) { // Avoid Restore duplicates
+            // if (strtolower($file->get_filename()) == strtolower($skipfile)) {
+            if (strpos($file->get_filename(), 'All_Files_') !== false) { // Avoid Restore duplicates
                 continue;
             }
             $output[] = html_writer::tag('p',
@@ -218,42 +229,46 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                                     )) . ' ' . s($file->get_filename())));
             $returnfiles[$file->get_filepath() . $file->get_filename()] = $file;
             $itemid = $file->get_itemid();
-            
+
             if (!$infocreated) {
-            	// Create info file.
-            	$infocontent = get_string('user') . ': ' . $examination_user->firstname . ' ' . $examination_user->lastname . " \r\n";
-            	$infocontent .=  get_string('email') . ': ' . $examination_user->email . ' (ID: ' . $examination_user->id .') ' . "\r\n";
-            	$infocontent .=  get_string('question') . ': ' . $question->name . ' (ID: ' . $question->id .') ' . "\r\n";
-            	$infocontent .=  get_string('course') . ': ' . $COURSE->fullname . ' (ID: ' . $COURSE->id .') ';
-            
-            	$fs = get_file_storage();
-            
-            	// Prepare file record object
-            	$fileinfo = array(
-            			'contextid' => $options->context->id, // ID of context
-            			'component' => 'question',     // usually = table name
-            			'filearea' => 'response_attachments',     // usually = table name
-            			'itemid' => $itemid,               // usually = ID of row in table
-            			'filepath' => '/',           // any path beginning and ending in /
-            			'filename' => '_user_info.txt'); // any filename
-            
-            	// Create file containing text infocontent
-            	$v = $fs->create_file_from_string($fileinfo, $infocontent);
-            	$returnfiles[$v->get_filepath() . $v->get_filename()] = $v;
-            	// Get info file
-            	$infotxtfile = $fs->get_file($options->context->id, 'question', 'response_attachments', $itemid, '/', '_user_info.txt'); 
-            	$infocreated = 1;
-            }    
+                // Create info file.
+                $infocontent = get_string('user') . ': ' . $examination_user->firstname . ' ' .
+                         $examination_user->lastname . " \r\n";
+                $infocontent .= get_string('email') . ': ' . $examination_user->email . ' (ID: ' .
+                         $examination_user->id . ') ' . "\r\n";
+                $infocontent .= get_string('question') . ': ' . $question->name . ' (ID: ' .
+                         $question->id . ') ' . "\r\n";
+                $infocontent .= get_string('course') . ': ' . $COURSE->fullname . ' (ID: ' .
+                         $COURSE->id . ') ';
+
+                $fs = get_file_storage();
+
+                // Prepare file record object
+                $fileinfo = array('contextid' => $options->context->id, // ID of context
+'component' => 'question', // usually = table name
+'filearea' => 'response_attachments', // usually = table name
+'itemid' => $itemid, // usually = ID of row in table
+'filepath' => '/', // any path beginning and ending in /
+'filename' => '_user_info.txt'
+                ); // any filename
+
+                // Create file containing text infocontent
+                $v = $fs->create_file_from_string($fileinfo, $infocontent);
+                $returnfiles[$v->get_filepath() . $v->get_filename()] = $v;
+                // Get info file
+                $infotxtfile = $fs->get_file($options->context->id, 'question',
+                        'response_attachments', $itemid, '/', '_user_info.txt');
+                $infocreated = 1;
+            }
         }
         if (count($returnfiles) > 0) {
-        	
+
             $final_zipped_file = $zipper->archive_to_storage($returnfiles, $options->context->id,
                     'question', 'response_attachments', $itemid, '/qtype_fileresponse_zipped/',
                     $skipfile, $step->get_user_id());
             // Delete info text if it exists
             if ($infotxtfile) {
-            	$infotxtfile->delete();
-            	
+                $infotxtfile->delete();
             }
             // Add Zipped to all links
             $output[] = html_writer::tag('hr', '');
@@ -291,7 +306,6 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         $pickeroptions->itemid = $qa->prepare_response_files_draft_itemid('attachments',
                 $options->context->id);
         $pickeroptions->allowpickerplugins = $allowpickerplugins;
-
         if ($forcedownload) { /* don't download fix */
             require_once ('fileresponsesimplifiedfilemanager.php'); /* don't download fix */
             $frsfm = new form_fileresponsesimplifiedfilemanager($pickeroptions);
@@ -302,7 +316,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                         'value' => $pickeroptions->itemid
                     )); /* render(renderable $widget) */
         } else { /* allow download */
-            require_once ('fileresponsefilemanager.php'); /* check allowed repositories */
+            require_once ('fileresponsefilemanager.php'); // Check allowed repositories.
             $frfm = new form_fileresponsefilemanager($pickeroptions);
             $filesrenderer = $this->page->get_renderer('qtype_fileresponse',
                     'fileresponsefilemanager');
@@ -423,8 +437,7 @@ class qtype_fileresponse_format_editor_renderer extends plugin_renderer_base {
         $output = '';
         if ($lines > 0) {
             $output .= html_writer::start_tag('div',
-                    array(
-                        'class' => $this->class_name() . ' qtype_fileresponse_response'
+                    array('class' => $this->class_name() . ' qtype_fileresponse_response'
                     ));
 
             $output .= html_writer::tag('div',
@@ -637,14 +650,16 @@ class qtype_fileresponse_format_plain_renderer extends plugin_renderer_base {
     }
 
     public function response_area_read_only($name, $qa, $step, $lines, $context) {
-        return $this->textarea($step->get_qt_var($name), $lines, array('readonly' => 'readonly'
-        ));
+        return $this->textarea($step->get_qt_var($name), $lines,
+                array('readonly' => 'readonly'
+                ));
     }
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
         $inputname = $qa->get_qt_field_name($name);
-        return $this->textarea($step->get_qt_var($name), $lines, array('name' => $inputname
-        )) . html_writer::empty_tag('input',
+        return $this->textarea($step->get_qt_var($name), $lines,
+                array('name' => $inputname
+                )) . html_writer::empty_tag('input',
                 array('type' => 'hidden', 'name' => $inputname . 'format', 'value' => FORMAT_PLAIN
                 ));
     }
