@@ -21,6 +21,7 @@
  * @subpackage fileresponse
  * @copyright 2012 Luca Bösch luca.boesch@bfh.ch
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
  */
 defined('MOODLE_INTERNAL') || die();
 
@@ -181,6 +182,40 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         return $result;
     }
 
+    public function get_uploader_name($userid, $question) {
+        global $DB, $COURSE;
+        $student_name_qid_arr = array();
+        $examination_user = $DB->get_record('user', array('id' => $userid
+        ));
+        if (!$examination_user) {
+            $student_name_qid_arr[0] = 'uknown';
+            $student_name_qid_arr[1] = 'uknown';
+            $student_name_qid_arr[2] = 'uknown';
+            $student_name_qid_arr[3] = 0;
+            $student_name_qid_arr[4] = 'uknown';
+            return $student_name_qid_arr;
+        }
+        // Remove anything which isn't a word, whitespace, number
+        // or any of the following caracters -_~,;[]().
+        // If you don't need to handle multi-byte characters
+        // you can use preg_replace rather than mb_ereg_replace
+        $cleanedfname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '',
+                $examination_user->firstname);
+        // Remove any runs of periods
+        $cleanedfname = mb_ereg_replace("([\.]{2,})", '', $cleanedfname);
+        $cleanedlname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '',
+                $examination_user->lastname);
+        // Remove any runs of periods
+        $cleanedlname = mb_ereg_replace("([\.]{2,})", '', $cleanedlname);
+
+        $student_name_qid_arr[0] = '_' . $cleanedfname . '_' . $cleanedlname . '_' . $question->id;
+        $student_name_qid_arr[1] = $examination_user->firstname;
+        $student_name_qid_arr[2] = $examination_user->lastname;
+        $student_name_qid_arr[3] = $examination_user->id;
+        $student_name_qid_arr[4] = $examination_user->email;
+        return $student_name_qid_arr;
+    }
+
     /**
      * Displays any attached files when the question is in read-only mode.
      *
@@ -196,29 +231,23 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         $output = array();
         $returnfiles = array();
         $zipper = new zip_packer();
-        $student_name_qid_str = '_';
-        $examination_user = $DB->get_record('user', array('id' => $step->get_user_id()
-        ));
-        // Remove anything which isn't a word, whitespace, number
-        // or any of the following caracters -_~,;[]().
-        // If you don't need to handle multi-byte characters
-        // you can use preg_replace rather than mb_ereg_replace
-        $cleanedfname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '',
-                $examination_user->firstname);
-        // Remove any runs of periods
-        $cleanedfname = mb_ereg_replace("([\.]{2,})", '', $cleanedfname);
-        $cleanedlname = mb_ereg_replace("([^\w\s\d\-_~,;\[\]\(\).])", '',
-                $examination_user->lastname);
-        // Remove any runs of periods
-        $cleanedlname = mb_ereg_replace("([\.]{2,})", '', $cleanedlname);
-
-        $student_name_qid_str .= $cleanedfname . '_' . $cleanedlname . '_' . $question->id;
-
-        $skipfile = 'All_Files' . $student_name_qid_str . '.zip';
         $infocreated = 0;
         foreach ($files as $file) {
-            // if (strtolower($file->get_filename()) == strtolower($skipfile)) {
-            if (strpos($file->get_filename(), 'All_Files_') !== false) { // Avoid Restore duplicates
+            $student_name_qid_arr = $this->get_uploader_name($file->get_userid(), $question);
+
+            $skipfile = 'All_Files' . $student_name_qid_arr[0] . '.zip';
+
+            if (strpos($file->get_filename(), 'All_Files') !== false) { // Avoid Restore duplicates
+                                                                        // Get old zipped file
+                $fs = get_file_storage();
+                $itemid = $file->get_itemid();
+                $skipzippedfile = $fs->get_file($options->context->id, 'question',
+                        'response_attachments', $itemid, '/qtype_fileresponse_zipped/',
+                        $file->get_filename());
+
+                if ($skipzippedfile) {
+                    $skipzippedfile->delete();
+                }
                 continue;
             }
             $output[] = html_writer::tag('p',
@@ -232,10 +261,10 @@ class qtype_fileresponse_renderer extends qtype_renderer {
 
             if (!$infocreated) {
                 // Create info file.
-                $infocontent = get_string('user') . ': ' . $examination_user->firstname . ' ' .
-                         $examination_user->lastname . " \r\n";
-                $infocontent .= get_string('email') . ': ' . $examination_user->email . ' (ID: ' .
-                         $examination_user->id . ') ' . "\r\n";
+                $infocontent = get_string('user') . ': ' . $student_name_qid_arr[1] . ' ' .
+                         $student_name_qid_arr[2] . " \r\n";
+                $infocontent .= get_string('email') . ': ' . $student_name_qid_arr[4] . ' (ID: ' .
+                         $student_name_qid_arr[3] . ') ' . "\r\n";
                 $infocontent .= get_string('question') . ': ' . $question->name . ' (ID: ' .
                          $question->id . ') ' . "\r\n";
                 $infocontent .= get_string('course') . ': ' . $COURSE->fullname . ' (ID: ' .
@@ -258,6 +287,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                 // Get info file
                 $infotxtfile = $fs->get_file($options->context->id, 'question',
                         'response_attachments', $itemid, '/', '_user_info.txt');
+
                 $infocreated = 1;
             }
         }
@@ -265,11 +295,12 @@ class qtype_fileresponse_renderer extends qtype_renderer {
 
             $final_zipped_file = $zipper->archive_to_storage($returnfiles, $options->context->id,
                     'question', 'response_attachments', $itemid, '/qtype_fileresponse_zipped/',
-                    $skipfile, $step->get_user_id());
+                    $skipfile, $file->get_userid());
             // Delete info text if it exists
             if ($infotxtfile) {
                 $infotxtfile->delete();
             }
+
             // Add Zipped to all links
             $output[] = html_writer::tag('hr', '');
             $output[] = html_writer::tag('p',
@@ -600,8 +631,9 @@ class qtype_fileresponse_format_editorfilepicker_renderer extends qtype_fileresp
         return array(
             'image' => $this->specific_filepicker_options(array('image'
             ), $draftitemid, $context),
-            'media' => $this->specific_filepicker_options(array('video', 'audio'
-            ), $draftitemid, $context),
+            'media' => $this->specific_filepicker_options(
+                    array('video', 'audio'
+                    ), $draftitemid, $context),
             'link' => $this->specific_filepicker_options('*', $draftitemid, $context)
         );
     }
