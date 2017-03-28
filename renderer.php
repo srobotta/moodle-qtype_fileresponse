@@ -142,24 +142,29 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                                 array('class' => 'answer'
                                 ));
             }
-        } else { /* exactly a certain amount (but more than one) of attachment expected */
+        } else {
+            /* exactly a certain amount (but more than one) of attachment expected */
             if ($filecount == 0) { /* no file of n > 1 submitted yet */
+
                 $result .= html_writer::tag('div',
                         get_string('noofnattachmentsubmitted', 'qtype_fileresponse',
                                 $expected_attachments) . "<br />&#160;<br />",
                         array('class' => 'answer'
                         ));
             } elseif (($expected_attachments > 1) && ($filecount == 1)) { /*
-                                                                           * exactly one file of n >
+                                                                           * exactly one file of
+                                                                           * n >
                                                                            * 1 submitted
                                                                            */
+
                 $result .= html_writer::tag('div',
                         get_string('oneofnattachmentssubmitted', 'qtype_fileresponse',
                                 $expected_attachments) . "<br />&#160;<br />",
                         array('class' => 'answer'
                         ));
             } elseif ($filecount > $expected_attachments) { /*
-                                                             * this should not happen: $filecount
+                                                             * this should not happen:
+                                                             * $filecount
                                                              * larger than $expected_attachments
                                                              */
                 $result .= html_writer::tag('div',
@@ -225,7 +230,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
      */
     public function files_read_only(question_attempt $qa, question_display_options $options,
             $question) {
-        global $DB, $COURSE;
+        global $DB, $COURSE, $skipfile;
         $files = $qa->get_last_qt_files('attachments', $options->context->id);
         $step = $qa->get_last_step_with_qt_var('answer');
         $output = array();
@@ -359,13 +364,18 @@ class qtype_fileresponse_renderer extends qtype_renderer {
     }
 
     public function get_already_uploaded_files_number($qa, $options) {
-        $step = $qa->get_last_step_with_qt_var('answer');
-        $fs = get_file_storage();
-        $usercontext = context_user::instance($step->get_user_id());
-        $alreadysavedfiles = $fs->get_area_files($usercontext->id, 'user', 'draft',
-                $qa->prepare_response_files_draft_itemid('attachments', $options->context->id), 'id',
-                false);
-        return count($alreadysavedfiles);
+        global $skipfile;
+        $files = $qa->get_last_qt_files('attachments', $options->context->id);
+        $counter = 0;
+        foreach ($files as $file) {
+            if ($file->get_filename() != $skipfile) { // minus the zipped file!
+                $counter++;
+            }
+        }
+        if ($counter < 0) {
+            $counter = 0;
+        }
+        return $counter;
     }
 
     public function manual_comment(question_attempt $qa, question_display_options $options) {
