@@ -14,7 +14,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 /**
  *
- * File Manager UI
+ * File Response File Manager UI
  * =====
  * this.api, stores the URL to make ajax request
  * this.currentpath
@@ -29,9 +29,9 @@
  * this.areamaxbytes, the maximum size of the area
  * this.fileresponsefilemanager, contains reference to fileresponsefilemanager Node
  * this.selectnode, contains referenct to select-file Node
- * this.selectui, M.core.dialogue to select the file
+ * this.selectui, YUI Panel to select the file
  *
- * fileresponsefilemanager options:
+ * FileresponseFileManager options:
  * =====
  * this.options.currentpath
  * this.options.itemid
@@ -43,21 +43,20 @@ M.form_fileresponsefilemanager = {templates:{}};
 M.form_fileresponsefilemanager.set_templates = function(Y, templates) {
     M.form_fileresponsefilemanager.templates = templates;
 }
-
 /**
- * This fucntion is called for each file picker on page.
+ * This function is called for each file picker on page.
  */
 M.form_fileresponsefilemanager.init = function(Y, options) {
-    var fileresponsefilemanagerHelper = function(options) {
-        fileresponsefilemanagerHelper.superclass.constructor.apply(this, arguments);
+    var FileResponseFileManagerHelper = function(options) {
+        FileResponseFileManagerHelper.superclass.constructor.apply(this, arguments);
     };
-    fileresponsefilemanagerHelper.NAME = "fileresponsefilemanager";
-    fileresponsefilemanagerHelper.ATTRS = {
+    FileResponseFileManagerHelper.NAME = "FileResponseFileManager";
+    FileResponseFileManagerHelper.ATTRS = {
         options: {},
         lang: {}
     };
 
-    Y.extend(fileresponsefilemanagerHelper, Y.Base, {
+    Y.extend(FileResponseFileManagerHelper, Y.Base, {
         api: M.cfg.wwwroot+'/repository/draftfiles_ajax.php',
         menus: {},
         initializer: function(options) {
@@ -88,10 +87,10 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
             }
             // prepare fileresponsefilemanager for drag-and-drop upload
             this.fileresponsefilemanager = Y.one('#fileresponsefilemanager-'+options.client_id);
-            if (this.fileresponsefilemanager.hasClass('fileresponsefilemanager-container') || !this.fileresponsefilemanager.one('.fileresponsefilemanager-container')) {
+            if (this.fileresponsefilemanager.hasClass('filemanager-container') || !this.fileresponsefilemanager.one('.filemanager-container')) {
                 this.dndcontainer = this.fileresponsefilemanager;
             } else  {
-                this.dndcontainer = this.fileresponsefilemanager.one('.fileresponsefilemanager-container');
+                this.dndcontainer = this.fileresponsefilemanager.one('.filemanager-container');
                 if (!this.dndcontainer.get('id')) {
                     this.dndcontainer.generateID();
                 }
@@ -103,7 +102,7 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                 this.pathbar.removeChild(this.pathnode);
             }
             // initialize 'select file' panel
-            this.selectnode = Y.Node.create(M.form_fileresponsefilemanager.templates.fileselectlayout);
+            this.selectnode = Y.Node.createWithFilesSkin(M.form_fileresponsefilemanager.templates.fileselectlayout);
             this.selectnode.setAttribute('aria-live', 'assertive');
             this.selectnode.setAttribute('role', 'dialog');
             this.selectnode.generateID();
@@ -163,8 +162,8 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                         try {
                             data = Y.JSON.parse(o.responseText);
                         } catch(e) {
-                            scope.print_msg(M.util.get_string('invalidjson', 'repository'), 'error');
-                            Y.error(M.util.get_string('invalidjson', 'repository')+":\n"+o.responseText);
+                            scope.print_msg(M.str.repository.invalidjson, 'error');
+                            Y.error(M.str.repository.invalidjson+":\n"+o.responseText);
                             return;
                         }
                         if (data && data.tree && scope.set_current_tree) {
@@ -239,7 +238,7 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                 header = M.util.get_string('info', 'moodle');
             }
             if (!this.msg_dlg) {
-                this.msg_dlg_node = Y.Node.create(M.form_fileresponsefilemanager.templates.message);
+                this.msg_dlg_node = Y.Node.createWithFilesSkin(M.form_fileresponsefilemanager.templates.message);
                 var nodeid = this.msg_dlg_node.generateID();
 
                 this.msg_dlg = new M.core.dialogue({
@@ -319,7 +318,7 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                         return valid;
                     };
                     if (!this.mkdir_dialog) {
-                        var node = Y.Node.create(M.form_fileresponsefilemanager.templates.mkdir);
+                        var node = Y.Node.createWithFilesSkin(M.form_fileresponsefilemanager.templates.mkdir);
                         this.mkdir_dialog = new M.core.dialogue({
                             draggable    : true,
                             bodyContent  : node,
@@ -367,7 +366,7 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                 }
                 var scope = this;
 
-                var image_downloading = this.fileresponsefilemanager.one('.fp-img-downloading');
+                var image_downloading = this.filemanager.one('.fp-img-downloading');
                 if (image_downloading.getStyle('display') == 'inline') {
                     return;
                 }
@@ -378,7 +377,7 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                     action: 'downloaddir',
                     scope: scope,
                     callback: function(id, obj, args) {
-                        var image_downloading = scope.fileresponsefilemanager.one('.fp-img-downloading');
+                        var image_downloading = scope.filemanager.one('.fp-img-downloading');
                         image_downloading.setStyle('display', 'none');
 
                         if (obj) {
@@ -633,6 +632,8 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
             this.fileresponsefilemanager.one('.fp-content').fp_display_filelist(options, list, this.lazyloading);
             this.content_scrolled();
         },
+        /* don't download fix: eliminate license field */
+        /*
         populate_licenses_select: function(node) {
             if (!node) {
                 return;
@@ -646,6 +647,9 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                 node.appendChild(option)
             }
         },
+        */
+        /* don't download fix: eliminate path field */
+        /*
         set_current_tree: function(tree) {
             var appendfilepaths = function(list, node) {
                 if (!node || !node.children || !node.children.length) {return;}
@@ -664,28 +668,38 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                     set('value', list[i]).setContent(Y.Escape.html(list[i])));
             }
         },
+        */
         update_file: function(confirmed) {
             var selectnode = this.selectnode;
             var fileinfo = this.selectui.fileinfo;
 
             var newfilename = Y.Lang.trim(selectnode.one('.fp-saveas input').get('value'));
             var filenamechanged = (newfilename && newfilename != fileinfo.fullname);
+            /* don't download fix: eliminate path field */
+            /*
             var pathselect = selectnode.one('.fp-path select'),
                     pathindex = pathselect.get('selectedIndex'),
                     targetpath = pathselect.get("options").item(pathindex).get('value');
             var filepathchanged = (targetpath != this.get_parent_folder_name(fileinfo));
-            var newauthor = Y.Lang.trim(selectnode.one('.fp-author input').get('value'));
+            */
+            var targetpath = this.currentpath;
+            var filepathchanged = false;
+            /* don't download fix: eliminate author field */
+            /* var newauthor = Y.Lang.trim(selectnode.one('.fp-author input').get('value'));
             var authorchanged = (newauthor != Y.Lang.trim(fileinfo.author));
-            var licenseselect = selectnode.one('.fp-license select'),
+            */
+            /* don't download fix: eliminate license field */
+            /* var licenseselect = selectnode.one('.fp-license select'),
                     licenseindex = licenseselect.get('selectedIndex'),
                     newlicense = licenseselect.get("options").item(licenseindex).get('value');
             var licensechanged = (newlicense != fileinfo.license);
+            */
 
             var params, action;
             var dialog_options = {callback:this.update_file, callbackargs:[true], scope:this};
             if (fileinfo.type == 'folder') {
                 if (!newfilename) {
-                    this.print_msg(M.util.get_string('entername', 'repository'), 'error');
+                    this.print_msg(M.util.get_string('enternewname', 'repository'), 'error');
                     return;
                 }
                 if (filenamechanged || filepathchanged) {
@@ -707,10 +721,17 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
                     this.show_confirm_dialog(dialog_options);
                     return;
                 }
-                if (filenamechanged || filepathchanged || licensechanged || authorchanged) {
+                /* don't download fix: eliminate author, license field */
+                /* if (filenamechanged || filepathchanged || licensechanged || authorchanged) {
                     params = {filepath:fileinfo.filepath, filename:fileinfo.fullname,
                         newfilename:newfilename, newfilepath:targetpath,
                         newlicense:newlicense, newauthor:newauthor};
+                    action = 'updatefile';
+                }
+                */
+                if (filenamechanged || filepathchanged) {
+                    params = {filepath:fileinfo.filepath, filename:fileinfo.fullname,
+                        newfilename:newfilename, newfilepath:targetpath};
                     action = 'updatefile';
                 }
             }
@@ -745,7 +766,7 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
         show_confirm_dialog: function(dialog_options) {
             // instead of M.util.show_confirm_dialog(e, dialog_options);
             if (!this.confirm_dlg) {
-                this.confirm_dlg_node = Y.Node.create(M.form_fileresponsefilemanager.templates.confirmdialog);
+                this.confirm_dlg_node = Y.Node.createWithFilesSkin(M.form_fileresponsefilemanager.templates.confirmdialog);
                 var node = this.confirm_dlg_node;
                 node.generateID();
                 this.confirm_dlg = new M.core.dialogue({
@@ -782,10 +803,16 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
         setup_select_file: function() {
             var selectnode = this.selectnode;
             // bind labels with corresponding inputs
-            selectnode.all('.fp-saveas,.fp-path,.fp-author,.fp-license').each(function (node) {
+            /* don't download fix: eliminate author, license field */
+            /* selectnode.all('.fp-saveas,.fp-path,.fp-author,.fp-license').each(function (node) {
                 node.all('label').set('for', node.one('input,select').generateID());
             });
-            this.populate_licenses_select(selectnode.one('.fp-license select'));
+            */
+            selectnode.all('.fp-saveas,.fp-path').each(function (node) {
+                node.all('label').set('for', node.one('input,select').generateID());
+            });
+            /* don't download fix: eliminate license field */
+            /* this.populate_licenses_select(selectnode.one('.fp-license select')); */
             // register event on clicking buttons
             selectnode.one('.fp-file-update').on('click', function(e) {
                 e.preventDefault();
@@ -945,27 +972,26 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
             this.selectui.fileinfo = node;
             selectnode.one('.fp-saveas input').set('value', node.fullname);
             var foldername = this.get_parent_folder_name(node);
-            selectnode.all('.fp-author input').set('value', node.author ? node.author : '');
-            selectnode.all('.fp-license select option[selected]').set('selected', false);
-            selectnode.all('.fp-license select option[value='+node.license+']').set('selected', true);
+            /* don't download fix: eliminate author field */
+            /* selectnode.all('.fp-author input').set('value', node.author ? node.author : ''); */
+            /* don't download fix: eliminate license field */
+            /* selectnode.all('.fp-license select option[selected]').set('selected', false);
+            selectnode.all('.fp-license select option[value='+node.license+']').set('selected', true); */
             selectnode.all('.fp-path select option[selected]').set('selected', false);
             selectnode.all('.fp-path select option').each(function(el){
                 if (el.get('value') == foldername) {
                     el.set('selected', true);
                 }
             });
-            selectnode.all('.fp-author input, .fp-license select').set('disabled',(node.type == 'folder')?'disabled':'');
+            /* don't download fix: eliminate author, license field */
+            /* selectnode.all('.fp-author input, .fp-license select').set('disabled',(node.type == 'folder')?'disabled':''); */
             // display static information about a file (when known)
             var attrs = ['datemodified','datecreated','size','dimensions','original','reflist'];
             for (var i in attrs) {
                 if (selectnode.one('.fp-'+attrs[i])) {
                     var value = (node[attrs[i]+'_f']) ? node[attrs[i]+'_f'] : (node[attrs[i]] ? node[attrs[i]] : '');
-                    // Escape if the attribute being evaluated is not for the list of reference files.
-                    if (attrs[i] !== 'reflist') {
-                        value = Y.Escape.html(value);
-                    }
                     selectnode.one('.fp-'+attrs[i]).addClassIf('fp-unknown', ''+value == '')
-                        .one('.fp-value').setContent(value);
+                        .one('.fp-value').setContent(Y.Escape.html(value));
                 }
             }
             // display thumbnail
@@ -1059,7 +1085,7 @@ M.form_fileresponsefilemanager.init = function(Y, options) {
     var fileresponsefilemanager = Y.one('#fileresponsefilemanager-'+options.client_id);
     fileresponsefilemanager.removeClass('fm-loading').addClass('fm-loaded');
 
-    var manager = new fileresponsefilemanagerHelper(options);
+    var manager = new FileResponseFileManagerHelper(options);
     var dndoptions = {
         filemanager: manager,
         acceptedtypes: options.filepicker.accepted_types,
