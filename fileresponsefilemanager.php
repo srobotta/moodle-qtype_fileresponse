@@ -495,7 +495,9 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
             )
             )
         );
-        if ($this->page->requires->should_create_one_time_item_now('core_file_managertemplate')) {
+
+        if (empty($fileresponsefilemanagertemplateloaded)) {
+            $fileresponsefilemanagertemplateloaded = true;
             $this->page->requires->js_init_call('M.form_fileresponsefilemanager.set_templates',
                     array($this->fileresponsefilemanager_js_templates()
                     ), true, $module);
