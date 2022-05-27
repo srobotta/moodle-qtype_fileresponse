@@ -65,7 +65,11 @@ class qtype_fileresponse extends question_type {
         $options->responseformat = 'plain';
         $options->responsefieldlines = $formdata->responsefieldlines;
         $options->attachments = $formdata->attachments;
-        $options->forcedownload = $formdata->forcedownload;
+        if (isset($formdata->forcedownload)) {
+            $options->forcedownload = $formdata->forcedownload;
+        } else {
+            $options->forcedownload = 0;
+        }
         $options->allowpickerplugins = $formdata->allowpickerplugins;
         if (!isset($formdata->filetypeslist)) {
             $options->filetypeslist = "";
@@ -148,7 +152,7 @@ class qtype_fileresponse extends question_type {
      */
     public function attachment_options() {
         return array(
-            /* Fileresponse has to have at least one file required. */
+            // Fileresponse has to have at least one file required.
             1 => '1',
             2 => '2',
             3 => '3',
@@ -227,9 +231,10 @@ class qtype_fileresponse extends question_type {
         $expout .= '    <forcedownload>' . $question->options->forcedownload .
             "</forcedownload>\n";
         $expout .= '    <allowpickerplugins>' . $question->options->allowpickerplugins .
-            "</allowpickerplugins>\n";
+                 "</allowpickerplugins>\n";
         $files = $fs->get_area_files($contextid, 'qtype_fileresponse', 'graderinfo', $question->id);
-        $expout .= '    <graderinfo format="'.$question->options->graderinfoformat.'">' . $format->writetext($question->options->graderinfo);
+        $expout .= '    <graderinfo format="'.$question->options->graderinfoformat.'">' .
+            $format->writetext($question->options->graderinfo);
         $expout .= $format->write_files($files);
         $expout .= "</graderinfo>\n";
         $expout .= '    <graderinfoformat>' . $question->options->graderinfoformat .

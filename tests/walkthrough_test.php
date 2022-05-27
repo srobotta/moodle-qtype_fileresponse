@@ -15,27 +15,30 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains tests that walks essay questions through some attempts.
+ * This file contains tests that walks fileresponse questions through some attempts.
  *
- * @package   qtype_essay
- * @copyright 2013 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    qtype_fileresponse
+ * @copyright  2022 Luca Bösch, BFH Bern University of Applied Sciences luca.boesch@bfh.ch
+ * @copyright  based on work by 2007 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace qtype_fileresponse;
 
 defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 require_once($CFG->dirroot . '/question/engine/tests/helpers.php');
 
-
 /**
- * Unit tests for the essay question type.
+ * Unit tests for the fileresponse question type.
  *
- * @copyright 2013 The Open University
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package    qtype_fileresponse
+ * @copyright  2022 Luca Bösch, BFH Bern University of Applied Sciences luca.boesch@bfh.ch
+ * @copyright  based on work by 2007 The Open University
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base {
+class walkthrough_test extends \qbehaviour_walkthrough_test_base {
 
     protected function check_contains_textarea($name, $content = '', $height = 10) {
         $fieldname = $this->quba->get_field_prefix($this->slot) . $name;
@@ -72,13 +75,18 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $fs->create_file_from_string($filerecord, $contents);
     }
 
+    /**
+     * Test the html editor when having set deferred feedback question behaviour.
+     *
+     * @covers ::question_behaviours
+     */
     public function test_deferred_feedback_html_editor() {
 
         // The current text editor depends on the users profile setting - so it needs a valid user.
         $this->setAdminUser();
 
-        // Create an essay question.
-        $q = test_question_maker::make_question('essay', 'editor');
+        // Create a fileresponse question.
+        $q = \test_question_maker::make_question('fileresponse', 'allowdownload_allowfilepicker');
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
 
         $prefix = $this->quba->get_field_prefix($this->slot);
@@ -86,7 +94,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $response = '<p>The <b>cat</b> sat on the mat. Then it ate a <b>frog</b>.</p>';
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->render();
         $this->check_contains_textarea('answer', '');
@@ -104,7 +112,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         ));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(2);
         $this->render();
@@ -118,7 +126,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $this->quba->finish_all_questions();
 
         // Verify.
-        $this->check_current_state(question_state::$needsgrading);
+        $this->check_current_state(\question_state::$needsgrading);
         $this->check_current_mark(null);
         $this->render();
         $this->assertRegExp('/' . preg_quote($response, '/') . '/', $this->currentoutput);
@@ -127,10 +135,15 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
                 $this->get_contains_general_feedback_expectation($q));
     }
 
+    /**
+     * Test the plain text editor when having set deferred feedback question behaviour.
+     *
+     * @covers ::question_behaviours
+     */
     public function test_deferred_feedback_plain_text() {
 
-        // Create an essay question.
-        $q = test_question_maker::make_question('essay', 'plain');
+        // Create a fileresponse question.
+        $q = \test_question_maker::make_question('fileresponse', 'allowdownload_allowfilepicker');
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
 
         $prefix = $this->quba->get_field_prefix($this->slot);
@@ -138,7 +151,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $response = "x < 1\nx > 0\nFrog & Toad were friends.";
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->render();
         $this->check_contains_textarea('answer', '');
@@ -156,7 +169,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         ));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(2);
         $this->render();
@@ -170,7 +183,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $this->quba->finish_all_questions();
 
         // Verify.
-        $this->check_current_state(question_state::$needsgrading);
+        $this->check_current_state(\question_state::$needsgrading);
         $this->check_current_mark(null);
         $this->render();
         $this->assertRegExp('/' . preg_quote(s($response), '/') . '/', $this->currentoutput);
@@ -179,20 +192,25 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
                 $this->get_contains_general_feedback_expectation($q));
     }
 
+    /**
+     * Test the response template.
+     *
+     * @covers ::response_template
+     */
     public function test_responsetemplate() {
 
         // The current text editor depends on the users profile setting - so it needs a valid user.
         $this->setAdminUser();
 
-        // Create an essay question.
-        $q = test_question_maker::make_question('essay', 'responsetemplate');
+        // Create a fileresponse question.
+        $q = \test_question_maker::make_question('fileresponse', 'allowdownload_allowfilepicker');
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
 
         $prefix = $this->quba->get_field_prefix($this->slot);
         $fieldname = $prefix . 'answer';
 
         // Check the initial state.
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->render();
         $this->check_contains_textarea('answer', 'Once upon a time');
@@ -210,7 +228,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         ));
 
         // Verify.
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(2);
         $this->render();
@@ -224,33 +242,39 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $this->quba->finish_all_questions();
 
         // Verify.
-        $this->check_current_state(question_state::$needsgrading);
+        $this->check_current_state(\question_state::$needsgrading);
         $this->check_current_mark(null);
         $this->render();
-        $this->assertRegExp('/' . preg_quote(s('Once upon a time there was a little green frog.'), '/') . '/', $this->currentoutput);
+        $this->assertRegExp('/' . preg_quote(s('Once upon a time there was a little green frog.'), '/') . '/',
+            $this->currentoutput);
         $this->check_current_output(
                 $this->get_contains_question_text_expectation($q),
                 $this->get_contains_general_feedback_expectation($q));
     }
 
+    /**
+     * Test the html editor with files attempts when having set deferred feedback question behaviour.
+     *
+     * @covers ::question_behaviours
+     */
     public function test_deferred_feedback_html_editor_with_files_attempt_on_last() {
         global $CFG, $USER;
 
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $usercontextid = context_user::instance($USER->id)->id;
+        $usercontextid = \context_user::instance($USER->id)->id;
         $fs = get_file_storage();
 
-        // Create an essay question in the DB.
+        // Create a fileresponse question in the DB.
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category();
-        $question = $generator->create_question('essay', 'editorfilepicker', array('category' => $cat->id));
+        $question = $generator->create_question('fileresponse', 'allowdownload_allowfilepicker', array('category' => $cat->id));
 
         // Start attempt at the question.
-        $q = question_bank::load_question($question->id);
+        $q = \question_bank::load_question($question->id);
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
 
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_step_count(1);
 
@@ -276,7 +300,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
                 'answer:itemid' => $editordraftid,
                 'attachments' => $attachementsdraftid));
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(2);
         $this->save_quba();
@@ -302,13 +326,13 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
                 'answer:itemid' => $editordraftid,
                 'attachments' => $attachementsdraftid));
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(2);
 
         // Now submit all and finish.
         $this->finish();
-        $this->check_current_state(question_state::$needsgrading);
+        $this->check_current_state(\question_state::$needsgrading);
         $this->check_current_mark(null);
         $this->check_step_count(3);
         $this->save_quba();
@@ -324,7 +348,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $this->slot = $this->quba->add_question($q, 1);
         $this->quba->start_question_based_on($this->slot, $oldqa);
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(1);
         $this->save_quba();
@@ -350,29 +374,35 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
                 'answer:itemid' => $editordraftid,
                 'attachments' => $attachementsdraftid));
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(1);
     }
 
+    /**
+     * Test the html editor with files when no file has been uploaded when
+     * having set deferred feedback question behaviour.
+     *
+     * @covers ::question_behaviours
+     */
     public function test_deferred_feedback_html_editor_with_files_attempt_on_last_no_files_uploaded() {
         global $CFG, $USER;
 
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $usercontextid = context_user::instance($USER->id)->id;
+        $usercontextid = \context_user::instance($USER->id)->id;
         $fs = get_file_storage();
 
-        // Create an essay question in the DB.
+        // Create a fileresponse question in the DB.
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category();
-        $question = $generator->create_question('essay', 'editorfilepicker', array('category' => $cat->id));
+        $question = $generator->create_question('fileresponse', 'allowdownload_allowfilepicker', array('category' => $cat->id));
 
         // Start attempt at the question.
-        $q = question_bank::load_question($question->id);
+        $q = \question_bank::load_question($question->id);
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
 
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_step_count(1);
 
@@ -394,14 +424,14 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
                 'answer:itemid' => $editordraftid,
                 'attachments' => $attachementsdraftid));
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(2);
         $this->save_quba();
 
         // Now submit all and finish.
         $this->finish();
-        $this->check_current_state(question_state::$needsgrading);
+        $this->check_current_state(\question_state::$needsgrading);
         $this->check_current_mark(null);
         $this->check_step_count(3);
         $this->save_quba();
@@ -417,7 +447,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $this->slot = $this->quba->add_question($q, 1);
         $this->quba->start_question_based_on($this->slot, $oldqa);
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(1);
         $this->save_quba();
@@ -428,23 +458,28 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $this->assertRegExp('/I refuse to draw you a picture, so there!/', $this->currentoutput);
     }
 
+    /**
+     * Test the plain text editor when having set deferred feedback question behaviour.
+     *
+     * @covers ::question_behaviours
+     */
     public function test_deferred_feedback_plain_attempt_on_last() {
         global $CFG, $USER;
 
         $this->resetAfterTest(true);
         $this->setAdminUser();
-        $usercontextid = context_user::instance($USER->id)->id;
+        $usercontextid = \context_user::instance($USER->id)->id;
 
-        // Create an essay question in the DB.
+        // Create a fileresponse question in the DB.
         $generator = $this->getDataGenerator()->get_plugin_generator('core_question');
         $cat = $generator->create_question_category();
-        $question = $generator->create_question('essay', 'plain', array('category' => $cat->id));
+        $question = $generator->create_question('fileresponse', 'allowdownload_allowfilepicker', array('category' => $cat->id));
 
         // Start attempt at the question.
-        $q = question_bank::load_question($question->id);
+        $q = \question_bank::load_question($question->id);
         $this->start_attempt_at_question($q, 'deferredfeedback', 1);
 
-        $this->check_current_state(question_state::$todo);
+        $this->check_current_state(\question_state::$todo);
         $this->check_current_mark(null);
         $this->check_step_count(1);
 
@@ -455,14 +490,14 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
             'answerformat' => FORMAT_PLAIN,
         ));
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(2);
         $this->save_quba();
 
         // Now submit all and finish.
         $this->finish();
-        $this->check_current_state(question_state::$needsgrading);
+        $this->check_current_state(\question_state::$needsgrading);
         $this->check_current_mark(null);
         $this->check_step_count(3);
         $this->save_quba();
@@ -478,7 +513,7 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         $this->slot = $this->quba->add_question($q, 1);
         $this->quba->start_question_based_on($this->slot, $oldqa);
 
-        $this->check_current_state(question_state::$complete);
+        $this->check_current_state(\question_state::$complete);
         $this->check_current_mark(null);
         $this->check_step_count(1);
         $this->save_quba();
@@ -486,8 +521,9 @@ class qtype_essay_walkthrough_testcase extends qbehaviour_walkthrough_test_base 
         // Check the display.
         $this->load_quba();
         $this->render();
-        // Test taht no HTML comment has been added to the response.
-        $this->assertRegExp('/Once upon a time there was a frog called Freddy. He lived happily ever after.(?!&lt;!--)/', $this->currentoutput);
+        // Test that no HTML comment has been added to the response.
+        $this->assertRegExp('/Once upon a time there was a frog called Freddy. He lived happily ever after.(?!&lt;!--)/',
+            $this->currentoutput);
         // Test for the hash of an empty file area.
         $this->assertNotContains('d41d8cd98f00b204e9800998ecf8427e', $this->currentoutput);
     }

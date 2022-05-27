@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Fileresponse FileManager form element
@@ -20,16 +20,18 @@
  * Contains HTML class for a fileresponsefilemanager form element
  *
  * @package    qtype_fileresponse
- * @copyright  2012 Luca Bösch luca.boesch@bfh.ch
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @copyright  2022 Luca Bösch, BFH Bern University of Applied Sciences luca.boesch@bfh.ch
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+defined('MOODLE_INTERNAL') || die();
 
 global $CFG;
 
 require_once('HTML/QuickForm/element.php');
-require_once($CFG->dirroot.'/lib/filelib.php');
-require_once($CFG->dirroot.'/repository/lib.php');
-require_once($CFG->dirroot.'/lib/form/templatable_form_element.php');
+require_once($CFG->dirroot . '/lib/filelib.php');
+require_once($CFG->dirroot . '/repository/lib.php');
+require_once($CFG->dirroot . '/lib/form/templatable_form_element.php');
 
 /**
  * Filemanager form element
@@ -49,9 +51,9 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
     public $_helpbutton = '';
 
     /** @var array options provided to initalize fileresponsefilemanager */
-    // PHP doesn't support 'key' => $value1 | $value2 in class definition
+    // PHP doesn't support 'key' => $value1 | $value2 in class definition.
     // We cannot do $_options = array('return_types'=> FILE_INTERNAL | FILE_REFERENCE);
-    // So I have to set null here, and do it in constructor
+    // So I have to set null here, and do it in constructor.
     protected $_options = array('mainfile' => '', 'subdirs' => 1, 'maxbytes' => -1,
         'maxfiles' => -1, 'accepted_types' => '*', 'return_types' => null,
         'areamaxbytes' => FILE_AREA_MAX_BYTES_UNLIMITED
@@ -60,13 +62,13 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
     /**
      * Constructor
      *
-     * @param string $elementName (optional) name of the fileresponsefilemanager
-     * @param string $elementLabel (optional) fileresponsefilemanager label
+     * @param string $elementname (optional) name of the fileresponsefilemanager
+     * @param string $elementlabel (optional) fileresponsefilemanager label
      * @param array $attributes (optional) Either a typical HTML attribute string
      *              or an associative array
      * @param array $options set of options to initalize fileresponsefilemanager
      */
-    public function __construct($elementName = null, $elementLabel = null, $attributes = null, $options = null) {
+    public function __construct($elementname = null, $elementlabel = null, $attributes = null, $options = null) {
         global $CFG, $PAGE;
 
         $options = (array) $options;
@@ -83,8 +85,10 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
             $this->_options['return_types'] = (FILE_INTERNAL | FILE_REFERENCE | FILE_CONTROLLED_LINK);
         }
         $this->_type = 'fileresponsefilemanager';
-        parent::__construct($elementName, $elementLabel, $attributes);
+        parent::__construct($elementname, $elementlabel, $attributes);
     }
+
+    // @codingStandardsIgnoreStart
 
     /**
      * Called by HTML_QuickForm whenever form event is made on this element
@@ -94,7 +98,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      * @param object $caller calling object
      * @return bool
      */
-    function onQuickFormEvent($event, $arg, &$caller) {
+    public function onQuickFormEvent($event, $arg, &$caller) {
         switch ($event) {
             case 'createElement':
                 $caller->setType($arg[0], PARAM_INT);
@@ -103,14 +107,15 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
         return parent::onQuickFormEvent($event, $arg, $caller);
     }
 
+    // @codingStandardsIgnoreEnd
+
     /**
      * Sets name of fileresponsefilemanager
      *
      * @param string $name name of the fileresponsefilemanager
      */
-    function setName($name) {
-        $this->updateAttributes(array('name' => $name
-        ));
+    public function setname($name) {
+        $this->updateAttributes(array('name' => $name));
     }
 
     /**
@@ -118,7 +123,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return string
      */
-    function getName() {
+    public function getname() {
         return $this->getAttribute('name');
     }
 
@@ -127,9 +132,8 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @param string $value value to set
      */
-    function setValue($value) {
-        $this->updateAttributes(array('value' => $value
-        ));
+    public function setvalue($value) {
+        $this->updateAttributes(array('value' => $value));
     }
 
     /**
@@ -137,7 +141,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return string
      */
-    function getValue() {
+    public function getvalue() {
         return $this->getAttribute('value');
     }
 
@@ -146,7 +150,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return int
      */
-    function getMaxbytes() {
+    public function getmaxbytes() {
         return $this->_options['maxbytes'];
     }
 
@@ -155,7 +159,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @param int $maxbytes file size
      */
-    function setMaxbytes($maxbytes) {
+    public function setmaxbytes($maxbytes) {
         global $CFG, $PAGE;
         $this->_options['maxbytes'] = get_user_max_upload_file_size($PAGE->context, $CFG->maxbytes,
                 $maxbytes);
@@ -166,7 +170,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return int
      */
-    function getAreamaxbytes() {
+    public function getareamaxbytes() {
         return $this->_options['areamaxbytes'];
     }
 
@@ -175,7 +179,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @param int $areamaxbytes size limit
      */
-    function setAreamaxbytes($areamaxbytes) {
+    public function setareamaxbytes($areamaxbytes) {
         $this->_options['areamaxbytes'] = $areamaxbytes;
     }
 
@@ -184,7 +188,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return bool
      */
-    function getSubdirs() {
+    public function getsubdirs() {
         return $this->_options['subdirs'];
     }
 
@@ -193,7 +197,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @param bool $allow true if sub directory can be created.
      */
-    function setSubdirs($allow) {
+    public function setsubdirs($allow) {
         $this->_options['subdirs'] = $allow;
     }
 
@@ -202,7 +206,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return int
      */
-    function getMaxfiles() {
+    public function getmaxfiles() {
         return $this->_options['maxfiles'];
     }
 
@@ -211,7 +215,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @param int $num number of files
      */
-    function setMaxfiles($num) {
+    public function setmaxfiles($num) {
         $this->_options['maxfiles'] = $num;
     }
 
@@ -220,7 +224,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return string html for help button
      */
-    function getHelpButton() {
+    public function gethelpbutton() {
         return $this->_helpbutton;
     }
 
@@ -229,7 +233,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return string
      */
-    function getElementTemplateType() {
+    public function getelementtemplatetype() {
         if ($this->_flagFrozen) {
             return 'nodisplay';
         } else {
@@ -242,14 +246,14 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
      *
      * @return string
      */
-    function toHtml() {
+    public function tohtml() {
         global $CFG, $USER, $COURSE, $PAGE, $OUTPUT;
-        require_once ("$CFG->dirroot/repository/lib.php");
+        require_once("$CFG->dirroot/repository/lib.php");
 
-        // security - never ever allow guest/not logged in user to upload anything or use this
+        // Security - never ever allow guest/not logged in user to upload anything or use this
         // element!
         if (isguestuser() or !isloggedin()) {
-            print_error('noguest');
+            throw new moodle_exception('noguest');
         }
 
         if ($this->_flagFrozen) {
@@ -260,28 +264,28 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
         $elname = $this->_attributes['name'];
         $subdirs = $this->_options['subdirs'];
         $maxbytes = $this->_options['maxbytes'];
-        $draftitemid = $this->getValue();
-        $accepted_types = $this->_options['accepted_types'];
+        $draftitemid = $this->getvalue();
+        $acceptedtypes = $this->_options['accepted_types'];
 
         if (empty($draftitemid)) {
-            // no existing area info provided - let's use fresh new draft area
-            require_once ("$CFG->libdir/filelib.php");
-            $this->setValue(file_get_unused_draft_itemid());
-            $draftitemid = $this->getValue();
+            // No existing area info provided - let's use fresh new draft area.
+            require_once("$CFG->libdir/filelib.php");
+            $this->setvalue(file_get_unused_draft_itemid());
+            $draftitemid = $this->getvalue();
         }
 
-        $client_id = uniqid();
+        $clientid = uniqid();
 
-        // fileresponsefilemanager options
+        // Fileresponsefilemanager options.
         $options = new stdClass();
         $options->mainfile = $this->_options['mainfile'];
         $options->maxbytes = $this->_options['maxbytes'];
-        $options->maxfiles = $this->getMaxfiles();
-        $options->client_id = $client_id;
+        $options->maxfiles = $this->getmaxfiles();
+        $options->client_id = $clientid;
         $options->itemid = $draftitemid;
         $options->subdirs = $this->_options['subdirs'];
         $options->target = $id;
-        $options->accepted_types = $accepted_types;
+        $options->accepted_types = $acceptedtypes;
         $options->return_types = $this->_options['return_types'];
         $options->context = $PAGE->context;
         $options->areamaxbytes = $this->_options['areamaxbytes'];
@@ -294,7 +298,7 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
         $html .= html_writer::empty_tag('input',
                 array('value' => $draftitemid, 'name' => $elname, 'type' => 'hidden'
                 ));
-        // label element needs 'for' attribute work
+        // Label element needs 'for' attribute work.
         $html .= html_writer::empty_tag('input',
                 array('value' => '', 'id' => 'id_' . $elname, 'type' => 'hidden'
                 ));
@@ -312,9 +316,11 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
 
     public function export_for_template(renderer_base $output) {
         $context = $this->export_for_template_base($output);
-        $context['html'] = $this->toHtml();
+        $context['html'] = $this->tohtml();
         return $context;
     }
+
+    // @codingStandardsIgnoreStart
 
     /**
      * Check that all files have the allowed type.
@@ -329,9 +335,9 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
         }
 
         $filetypesutil = new \core_form\filetypes_util();
-        $whitelist = $filetypesutil->normalize_file_types($this->_options['accepted_types']);
+        $allowlist = $filetypesutil->normalize_file_types($this->_options['accepted_types']);
 
-        if (empty($whitelist) || $whitelist === ['*']) {
+        if (empty($allowlist) || $allowlist === ['*']) {
             // Any file type is allowed, nothing to check here.
             return;
         }
@@ -345,14 +351,14 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
         }
 
         foreach ($draftfiles as $file) {
-            if (!$filetypesutil->is_allowed_file_type($file->filename, $whitelist)) {
+            if (!$filetypesutil->is_allowed_file_type($file->filename, $allowlist)) {
                 $wrongfiles[] = $file->filename;
             }
         }
 
         if ($wrongfiles) {
             $a = array(
-                'whitelist' => implode(', ', $whitelist),
+                'allowlist' => implode(', ', $allowlist),
                 'wrongfiles' => implode(', ', $wrongfiles),
             );
             return get_string('err_wrongfileextension', 'core_form', $a);
@@ -361,6 +367,8 @@ class MoodleQuickForm_fileresponsefilemanager extends HTML_QuickForm_element imp
         return;
     }
 }
+
+// @codingStandardsIgnoreEnd
 
 /**
  * Data structure representing a fileresponse file manager.
@@ -399,7 +407,7 @@ class form_fileresponsefilemanager implements renderable {
      */
     public function __construct(stdClass $options) {
         global $CFG, $USER, $PAGE;
-        require_once ($CFG->dirroot . '/repository/lib.php');
+        require_once($CFG->dirroot . '/repository/lib.php');
         $defaults = array('maxbytes' => -1, 'areamaxbytes' => FILE_AREA_MAX_BYTES_UNLIMITED,
             'maxfiles' => -1, 'itemid' => 0, 'subdirs' => 0, 'client_id' => uniqid(),
             'accepted_types' => '*', 'return_types' => FILE_INTERNAL, 'context' => $PAGE->context,
@@ -427,23 +435,23 @@ class form_fileresponsefilemanager implements renderable {
 
         $fs = get_file_storage();
 
-        // initilise options, getting files in root path
+        // Initialise options, getting files in root path.
         $this->options = file_get_drafarea_files($options->itemid, '/');
 
-        // calculate file count
+        // Calculate file count.
         $usercontext = context_user::instance($USER->id);
         $files = $fs->get_area_files($usercontext->id, 'user', 'draft', $options->itemid, 'id',
                 false);
         $filecount = count($files);
         $this->options->filecount = $filecount;
 
-        // copying other options
+        // Copying other options.
         foreach ($options as $name => $value) {
             $this->options->$name = $value;
         }
 
-        // calculate the maximum file size as minimum from what is specified in filepicker options,
-        // course options, global configuration and php settings
+        // Calculate the maximum file size as minimum from what is specified in filepicker options,
+        // course options, global configuration and php settings.
         $coursebytes = $maxbytes = 0;
         list($context, $course, $cm) = get_context_info_array($this->options->context->id);
         if (is_object($course)) {
@@ -459,42 +467,45 @@ class form_fileresponsefilemanager implements renderable {
         $this->options->userprefs['recentviewmode'] = get_user_preferences('filemanager_recentviewmode', '');
         user_preference_allow_ajax_update('filemanager_recentviewmode', PARAM_INT);
 
-        // building file picker options
+        // Building file picker options.
         $params = new stdClass();
         $params->accepted_types = $options->accepted_types;
         $params->return_types = $options->return_types;
         $params->context = $options->context;
         $params->env = 'fileresponsefilemanager';
         $params->disable_types = !empty($options->disable_types) ? $options->disable_types : array();
-        $filepicker_options = initialise_filepicker($params);
+        $filepickeroptions = initialise_filepicker($params);
         // If filepicker plugins aren't allowed make sure that only upload repository is available
-        // for students
+        // for students.
         if (!$options->allowpickerplugins) {
-            foreach ($filepicker_options->repositories as $repository) {
+            foreach ($filepickeroptions->repositories as $repository) {
                 if ($repository->type !== 'upload') {
-                    unset($filepicker_options->repositories[$repository->id]);
+                    unset($filepickeroptions->repositories[$repository->id]);
                 } else {
-                    $filepicker_options->userprefs['recentrepository'] = $repository->id; // Make it
+                    $filepickeroptions->userprefs['recentrepository'] = $repository->id; // Make it
                                                                                               // active
                                                                                               // tab!
                 }
             }
         }
-        $this->options->filepicker = $filepicker_options;
+        $this->options->filepicker = $filepickeroptions;
     }
 
     public function get_nonjsurl() {
         global $PAGE;
         return new moodle_url('/repository/draftfiles_manager.php',
-                array('env' => 'fileresponsefilemanager', 'action' => 'browse',
-                    'itemid' => $this->options->itemid, 'subdirs' => $this->options->subdirs,
-                    'maxbytes' => $this->options->maxbytes,
-                    'areamaxbytes' => $this->options->areamaxbytes,
-                    'maxfiles' => $this->options->maxfiles, 'ctx_id' => $PAGE->context->id,  // TODO
-                                                                                            // ?
-                    'course' => $PAGE->course->id, // TODO ?
-'sesskey' => sesskey()
-                ));
+            array('env' => 'fileresponsefilemanager',
+                'action' => 'browse',
+                'itemid' => $this->options->itemid,
+                'subdirs' => $this->options->subdirs,
+                'maxbytes' => $this->options->maxbytes,
+                'areamaxbytes' => $this->options->areamaxbytes,
+                'maxfiles' => $this->options->maxfiles,
+                'ctx_id' => $PAGE->context->id,  // TODO ?
+                'course' => $PAGE->course->id, // TODO ?
+                'sesskey' => sesskey()
+            )
+        );
     }
 }
 
@@ -517,9 +528,10 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
     public function render_form_fileresponsefilemanager($fm) {
         $html = $this->fm_print_generallayout($fm);
         $module = array(
-            'name'=>'form_fileresponsefilemanager',
-            'fullpath'=>'/question/type/fileresponse/fileresponsefilemanager.js',
-            'requires' => array('moodle-core-notification-dialogue', 'core_filepicker', 'base', 'io-base', 'node', 'json', 'core_dndupload', 'panel', 'resize-plugin', 'dd-plugin'),
+            'name' => 'form_fileresponsefilemanager',
+            'fullpath' => '/question/type/fileresponse/fileresponsefilemanager.js',
+            'requires' => array('moodle-core-notification-dialogue', 'core_filepicker', 'base', 'io-base', 'node', 'json',
+                'core_dndupload', 'panel', 'resize-plugin', 'dd-plugin'),
             'strings' => array(
                 array('error', 'moodle'), array('info', 'moodle'), array('confirmdeletefile', 'repository'),
                 array('draftareanofiles', 'repository'), array('entername', 'repository'), array('enternewname', 'repository'),
@@ -533,11 +545,11 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
                 array($this->fileresponsefilemanager_js_templates()), true, $module);
         $this->page->requires->js_init_call('M.form_fileresponsefilemanager.init', array($fm->options), true, $module);
 
-        // non javascript file manager
+        // Non javascript file manager.
         $html .= '<noscript>';
-        $html .= "<div><object type='text/html' data='".$fm->get_nonjsurl()."' height='160' width='600' style='border:1px solid #000'></object></div>";
+        $html .= "<div><object type='text/html' data='" . $fm->get_nonjsurl() .
+            "' height='160' width='600' style='border:1px solid #000'></object></div>";
         $html .= '</noscript>';
-
 
         return $html;
     }
@@ -595,18 +607,17 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
      * @return string
      */
     protected function fm_print_generallayout($fm) {
-        global $OUTPUT;
         $options = $fm->options;
-        $client_id = $options->client_id;
+        $clientid = $options->client_id;
         $straddfile = get_string('addfile', 'repository');
         $strmakedir = get_string('makeafolder', 'moodle');
         $strdownload = get_string('downloadfolder', 'repository');
         $strloading = get_string('loading', 'repository');
         $strdroptoupload = get_string('droptoupload', 'moodle');
-        $icon_progress = $OUTPUT->pix_icon('i/loading_small', $strloading) . '';
+        $iconprogress = $this->output->pix_icon('i/loading_small', $strloading) . '';
         $restrictions = $this->fm_print_restrictions($fm);
         $strdndnotsupported = get_string('dndnotsupported_insentence', 'moodle') .
-                 $OUTPUT->help_icon('dndnotsupported');
+            $this->output->help_icon('dndnotsupported');
         $strdndenabledinbox = get_string('dndenabled_inbox', 'moodle');
         $loading = get_string('loading', 'repository');
         $straddfiletext = get_string('addfiletext', 'repository');
@@ -614,7 +625,7 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
         $strdownloadallfiles = get_string('downloadallfiles', 'repository');
 
         $html = '
-<div id="fileresponsefilemanager-' . $client_id . '" class="filemanager fm-loading">
+<div id="fileresponsefilemanager-' . $clientid . '" class="filemanager fm-loading">
     <div class="fp-restrictions">
         ' . $restrictions . '
         <span class="dnduploadnotsupported-message"> - ' .
@@ -644,14 +655,17 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
                 </span>
             </div>
             <div class="fp-viewbar btn-group float-sm-right">
-                <a role="button" title="'. get_string('displayicons', 'repository') .'" class="fp-vb-icons btn btn-secondary btn-sm" href="#">
-                    ' . $this->pix_icon('fp/view_icon_active', get_string('displayasicons', 'repository'), 'theme') . '
+                <a role="button" title="'. get_string('displayicons', 'repository') .
+                    '" class="fp-vb-icons btn btn-secondary btn-sm" href="#">' .
+                    $this->pix_icon('fp/view_icon_active', get_string('displayasicons', 'repository'), 'theme') . '
                 </a>
-                <a role="button" title="'. get_string('displaydetails', 'repository') .'" class="fp-vb-details btn btn-secondary btn-sm" href="#">
-                    ' . $this->pix_icon('fp/view_list_active', get_string('displayasdetails', 'repository'), 'theme') . '
+                <a role="button" title="'. get_string('displaydetails', 'repository') .
+                    '" class="fp-vb-details btn btn-secondary btn-sm" href="#">' .
+                    $this->pix_icon('fp/view_list_active', get_string('displayasdetails', 'repository'), 'theme') . '
                 </a>
-                <a role="button" title="'. get_string('displaytree', 'repository') .'" class="fp-vb-tree btn btn-secondary btn-sm" href="#">
-                    ' . $this->pix_icon('fp/view_tree_active', get_string('displayastree', 'repository'), 'theme') . '
+                <a role="button" title="'. get_string('displaytree', 'repository') .
+                    '" class="fp-vb-tree btn btn-secondary btn-sm" href="#">' .
+                    $this->pix_icon('fp/view_tree_active', get_string('displayastree', 'repository'), 'theme') . '
                 </a>
             </div>
         </div>
@@ -659,7 +673,7 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
             <span class="fp-path-folder"><a class="fp-path-folder-name" href="#"></a></span>
         </div>
     </div>
-    <div class="filemanager-loading mdl-align">'.$icon_progress.'</div>
+    <div class="filemanager-loading mdl-align">'.$iconprogress.'</div>
     <div class="filemanager-container card" >
         <div class="fm-content-wrapper">
             <div class="fp-content"></div>
@@ -671,9 +685,9 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
             <div class="dndupload-target">' .
                  $strdroptoupload . '<br/><div class="dndupload-arrow"></div></div>
             <div class="dndupload-progressbars"></div>
-            <div class="dndupload-uploadinprogress">'.$icon_progress.'</div>
+            <div class="dndupload-uploadinprogress">'.$iconprogress.'</div>
         </div>
-        <div class="filemanager-updating">'.$icon_progress.'</div>
+        <div class="filemanager-updating">'.$iconprogress.'</div>
     </div>
 </div>';
         return $html;
@@ -825,7 +839,6 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
      * @return string
      */
     protected function fm_js_template_fileselectlayout() {
-        global $OUTPUT;
         $strloading = get_string('loading', 'repository');
         $iconprogress = $this->pix_icon('i/loading_small', $strloading) . '';
         $rv = '
@@ -841,7 +854,7 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
                  get_string('setmainfile', 'repository') .
                  '</button>
             <span class="fp-file-setmain-help">' .
-                 $OUTPUT->help_icon('setmainfile', 'repository') . '</span>
+                 $this->output->help_icon('setmainfile', 'repository') . '</span>
             <button class="fp-file-zip btn btn-secondary">' .
                  get_string('zip', 'editor') . '</button>
             <button class="fp-file-unzip btn btn-secondary">' . get_string('unzip') . '</button>
@@ -850,21 +863,21 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
             <div class="fp-saveas form-group row mx-0">
                 <label class="form-control-label col-4 px-0">' .
                  get_string('name', 'repository') . '</label>
-                <div class="col-8 form-inline">
+                <label class="col-8 form-inline">
                     <input class="form-control" type="text"/>
-                </div>
+                </label>
             </div>
             <div class="fp-author form-group row mx-0">
-                <label class="form-control-label col-4 px-0">' .
+                <div class="form-control-label col-4 px-0">' .
                  get_string('author', 'repository') .
-                 '</label>
+                 '</div>
                 <div class="col-8 form-inline">
                     <input class="form-control" type="text"/>
                 </div>
             </div>
             <div class="fp-license form-group row mx-0">
-                <label class="form-control-label col-4 px-0">' .
-                 get_string('chooselicense', 'repository') . '</label>
+                <div class="form-control-label col-4 px-0">' .
+                 get_string('chooselicense', 'repository') . '</div>
                 <div class="col-8 form-inline pr-0">
                     <select class="custom-select form-control"></select>
                 </div>
@@ -877,9 +890,9 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
                 </div>
             </div>
             <div class="fp-original control-group clearfix">
-                <label class="form-control-label col-4 px-0">' .
+                <div class="form-control-label col-4 px-0">' .
                  get_string('original', 'repository') .
-                 '</label>
+                 '</div>
                 <div class="col-8 form-inline">
                     <span class="fp-originloading">' .
                  $iconprogress . ' ' . $strloading .
@@ -887,9 +900,9 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
                 </div>
             </div>
             <div class="fp-reflist control-group clearfix">
-                <label class="form-control-label col-4 px-0">' .
+                <div class="form-control-label col-4 px-0">' .
                  get_string('referenceslist', 'repository') .
-                 '</label>
+                 '</div>
                 <div class="col-8 form-inline">
                     <p class="fp-refcount"></p>
                     <span class="fp-reflistloading">' .
@@ -955,11 +968,12 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
      * @return array
      */
     public function fileresponsefilemanager_js_templates() {
-        $class_methods = get_class_methods($this);
+        $classmethods = get_class_methods($this);
         $templates = array();
-        foreach ($class_methods as $method_name) {
-            if (preg_match('/^fm_js_template_(.*)$/', $method_name, $matches))
-                $templates[$matches[1]] = $this->$method_name();
+        foreach ($classmethods as $methodname) {
+            if (preg_match('/^fm_js_template_(.*)$/', $methodname, $matches)) {
+                $templates[$matches[1]] = $this->$methodname();
+            }
         }
         return $templates;
     }
@@ -986,7 +1000,7 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
         } else {
             $maxsize = get_string('maxfilesize', 'moodle', $maxbytes);
         }
-        // TODO MDL-32020 also should say about 'File types accepted'
+        // TODO MDL-32020 also should say about 'File types accepted'.
         return '<span>' . $maxsize . '</span>';
     }
 
@@ -1041,7 +1055,8 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
     <div class="fp-repo-area">
         <ul class="fp-list" role="tablist">
             <li class="fp-repo" role="tab" aria-selected="false" tabindex="-1">
-                <a href="#" tabindex="-1"><img class="fp-repo-icon" alt=" " width="16" height="16" />&nbsp;<span class="fp-repo-name"></span></a>
+                <a href="#" tabindex="-1"><img class="fp-repo-icon" alt=" " width="16" height="16" />&nbsp;
+                <span class="fp-repo-name"></span></a>
             </li>
         </ul>
     </div>
@@ -1545,11 +1560,12 @@ class qtype_fileresponse_fileresponsefilemanager_renderer extends plugin_rendere
      * @return array
      */
     public function filepicker_js_templates() {
-        $class_methods = get_class_methods($this);
+        $classmethods = get_class_methods($this);
         $templates = array();
-        foreach ($class_methods as $method_name) {
-            if (preg_match('/^fp_js_template_(.*)$/', $method_name, $matches))
-            $templates[$matches[1]] = $this->$method_name();
+        foreach ($classmethods as $methodname) {
+            if (preg_match('/^fp_js_template_(.*)$/', $methodname, $matches)) {
+                $templates[$matches[1]] = $this->$methodname();
+            }
         }
         return $templates;
     }

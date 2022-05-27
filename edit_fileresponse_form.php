@@ -22,10 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-defined('MOODLE_INTERNAL') || die();
-
-
 /**
  * Fileresponse question type editing form.
  *
@@ -39,9 +35,11 @@ class qtype_fileresponse_edit_form extends question_edit_form {
         $qtype = question_bank::get_qtype('fileresponse');
 
         /* Display the ?forcedownload=1 advice. */
-        $mform->addElement('static','advice', get_string('advice', 'qtype_fileresponse'),'<div style="width:496px;">'.get_string('questiontextforcedownload', 'qtype_fileresponse').'</div>');
+        $mform->addElement('static', 'advice', get_string('advice', 'qtype_fileresponse'),
+            '<div style="width:496px;">' . get_string('questiontextforcedownload', 'qtype_fileresponse') .
+            '</div>');
 
-        /* Fileresponse only accepts 'plain' as format */
+        /* fileresponse only accepts 'formatplain' as format */
         $mform->setDefault('responseformat', 'plain');
 
         $mform->addElement('header', 'responseoptions', get_string('responseoptions', 'qtype_fileresponse'));
@@ -102,13 +100,13 @@ class qtype_fileresponse_edit_form extends question_edit_form {
         $draftid = file_get_submitted_draft_itemid('graderinfo');
         $question->graderinfo = array();
         $question->graderinfo['text'] = file_prepare_draft_area(
-            $draftid,           // Draftid
-            $this->context->id, // context
-            'qtype_fileresponse',      // component
-            'graderinfo',       // filarea
-            !empty($question->id) ? (int) $question->id : null, // itemid
-            $this->fileoptions, // options
-            $question->options->graderinfo // text.
+            $draftid,           // Draftid.
+            $this->context->id, // Context.
+            'qtype_fileresponse',      // Component.
+            'graderinfo',       // Filarea.
+            !empty($question->id) ? (int) $question->id : null, // Itemid.
+            $this->fileoptions, // Options.
+            $question->options->graderinfo // Text.
         );
         $question->graderinfo['format'] = $question->options->graderinfoformat;
         $question->graderinfo['itemid'] = $draftid;

@@ -22,11 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
-defined('MOODLE_INTERNAL') || die();
-
-require_once($CFG->dirroot . '/question/type/questionbase.php');
-
 /**
  * Represents a fileresponse question.
  *
@@ -116,10 +111,10 @@ class qtype_fileresponse_question extends question_with_responses {
         if ($hasattachments) {
             // Check the filetypes.
             $filetypesutil = new \core_form\filetypes_util();
-            $whitelist = $filetypesutil->normalize_file_types($this->filetypeslist);
+            $allowlist = $filetypesutil->normalize_file_types($this->filetypeslist);
             $wrongfiles = array();
             foreach ($response['attachments']->get_files() as $file) {
-                if (!$filetypesutil->is_allowed_file_type($file->get_filename(), $whitelist)) {
+                if (!$filetypesutil->is_allowed_file_type($file->get_filename(), $allowlist)) {
                     $wrongfiles[] = $file->get_filename();
                 }
             }

@@ -8,11 +8,11 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Fileresponse question renderer class.
@@ -45,7 +45,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
 
         if (!$step->has_qt_var('answer') && empty($options->readonly)) {
             // Question has never been answered, fill it with response template.
-            $step = new question_attempt_step(array('answer'=>$question->responsetemplate));
+            $step = new question_attempt_step(array('answer' => $question->responsetemplate));
         }
 
         if ($question->responsefieldlines > 0) {
@@ -86,35 +86,35 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         /* How many files are expected, already uploaded and saved ? */
         $filecount = $this->get_already_uploaded_files_number($qa, $options);
 
-        $expected_attachments = (int) $question->attachments;
-        switch ($expected_attachments) {
-            case -1: /* Unlimited, but at least one file expected. */
-                /* No explanation is needed. */
+        $expectedattachments = (int) $question->attachments;
+        switch ($expectedattachments) {
+            case -1: // Unlimited, but at least one file expected.
+                // No explanation is needed.
                 break;
-            case 1: /* One file required. */
+            case 1: // One file required.
                 $result .= html_writer::tag('div',
                     get_string('oneattachmentexpected', 'qtype_fileresponse'),
                     array('class' => 'answer'
                     ));
                 break;
-            default: /* Two or three file required. */
+            default: // Two or three file required.
                 $result .= html_writer::tag('div',
                     get_string('nattachmentsexpected', 'qtype_fileresponse',
-                        $expected_attachments),
+                        $expectedattachments),
                     array('class' => 'answer'
                     ));
                 break;
         }
 
-        if ($expected_attachments == -1) {
-            /* Unlimited number, but at least one attachment expected. */
+        if ($expectedattachments == -1) {
+            // Unlimited number, but at least one attachment expected.
             switch ($filecount) {
                 case 0:
-                    /* No file of unlimited submitted. */
-                    /* No explanation is needed. */
+                    // No file of unlimited submitted.
+                    // No explanation is needed.
                     break;
                 case 1:
-                    /* Exactly one file of unlimited submitted. */
+                    // Exactly one file of unlimited submitted.
                     $result .= html_writer::tag('div',
                         get_string('oneattachmentsubmitted', 'qtype_fileresponse') .
                         "<br />&#160;<br />",
@@ -122,7 +122,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                         ));
                     break;
                 default:
-                    /* Exactly n > 1 files of unlimited submitted. */
+                    // Exactly n > 1 files of unlimited submitted.
                     $result .= html_writer::tag('div',
                         get_string('nattachmentssubmitted', 'qtype_fileresponse', $filecount) .
                         "<br />&#160;<br />",
@@ -130,24 +130,24 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                         ));
                     break;
             }
-        } else if ($expected_attachments == 1) {
-            /* Exactly one attachment expected. */
+        } else if ($expectedattachments == 1) {
+            // Exactly one attachment expected.
             if ($filecount == 0) {
-                /* No file of 1 submitted. */
+                // No file of 1 submitted.
                 $result .= html_writer::tag('div',
                     get_string('noofoneattachmentsubmitted', 'qtype_fileresponse') .
                     "<br />&#160;<br />",
                     array('class' => 'answer'
                     ));
             } else if ($filecount == 1) {
-                /* Exactly 1 file of 1 submitted. */
+                // Exactly 1 file of 1 submitted.
                 $result .= html_writer::tag('div',
                     get_string('oneofoneattachmentsubmitted', 'qtype_fileresponse') .
                     "<br />&#160;<br />",
                     array('class' => 'answer'
                     ));
             } else {
-                /* This should not happen: $filecount larger than $expected_attachments. */
+                // This should not happen: $filecount larger than $expectedattachments.
                 $result .= html_writer::tag('div',
                     get_string('nattachmentssubmitted', 'qtype_fileresponse', $filecount) .
                     "<br />&#160;<br />",
@@ -160,18 +160,18 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                 /* No file of n > 1 submitted yet. */
                 $result .= html_writer::tag('div',
                     get_string('noofnattachmentsubmitted', 'qtype_fileresponse',
-                        $expected_attachments) . "<br />&#160;<br />",
+                        $expectedattachments) . "<br />&#160;<br />",
                     array('class' => 'answer'
                     ));
-            } else if (($expected_attachments > 1) && ($filecount == 1)) {
+            } else if (($expectedattachments > 1) && ($filecount == 1)) {
                 /* Exactly one file of n > 1 submitted. */
                 $result .= html_writer::tag('div',
                     get_string('oneofnattachmentssubmitted', 'qtype_fileresponse',
-                        $expected_attachments) . "<br />&#160;<br />",
+                        $expectedattachments) . "<br />&#160;<br />",
                     array('class' => 'answer'
                     ));
-            } else if ($filecount > $expected_attachments) {
-                /* This should not happen: $filecount larger than $expected_attachments. */
+            } else if ($filecount > $expectedattachments) {
+                /* This should not happen: $filecount larger than $expectedattachments. */
                 $result .= html_writer::tag('div',
                     get_string('nattachmentssubmitted', 'qtype_fileresponse', $filecount) .
                     "<br />&#160;<br />",
@@ -181,7 +181,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                 /* n > 1 files of n > 1 submitted yet. */
                 $result .= html_writer::tag('div',
                     $filecount . get_string('ofnattachmentssubmitted', 'qtype_fileresponse',
-                        $expected_attachments) . "<br />&#160;<br />",
+                        $expectedattachments) . "<br />&#160;<br />",
                     array('class' => 'answer'
                     ));
             }
@@ -206,7 +206,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
 
         foreach ($files as $file) {
             $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
-                    $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
+                   $this->output->pix_icon(file_file_icon($file), get_mimetype_description($file),
                     'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
         }
         return implode($output);
@@ -226,8 +226,7 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         global $CFG;
 
         /* Removed the call to lib/form/filemanager.php because we've cloned the filepicker. */
-        require_once ($CFG->dirroot . '/repository/lib.php');
-
+        require_once($CFG->dirroot . '/repository/lib.php');
         $pickeroptions = new stdClass();
         $pickeroptions->mainfile = null;
         $pickeroptions->maxfiles = $numallowed;
@@ -254,8 +253,8 @@ class qtype_fileresponse_renderer extends qtype_renderer {
         }
 
         if ($forcedownload) {
-            /* Don't download fix. */
-            require_once ('fileresponsesimplifiedfilemanager.php');
+            // Don't download fix.
+            require_once('fileresponsesimplifiedfilemanager.php');
             $frsfm = new form_fileresponsesimplifiedfilemanager($pickeroptions);
             $filesrenderer = $this->page->get_renderer('qtype_fileresponse',
                 'fileresponsesimplifiedfilemanager');
@@ -264,8 +263,8 @@ class qtype_fileresponse_renderer extends qtype_renderer {
                         'value' => $pickeroptions->itemid
                     )) . $text;
         } else {
-            /* Allow download. */
-            require_once ('fileresponsefilemanager.php');
+            // Allow download.
+            require_once('fileresponsefilemanager.php');
             // Check allowed repositories.
             $frfm = new form_fileresponsefilemanager($pickeroptions);
             $filesrenderer = $this->page->get_renderer('qtype_fileresponse',
@@ -328,8 +327,8 @@ abstract class qtype_fileresponse_format_renderer_base extends plugin_renderer_b
      * @param object $context the context teh output belongs to.
      * @return string html to display the response.
      */
-    public abstract function response_area_read_only($name, question_attempt $qa,
-        question_attempt_step $step, $lines, $context);
+    abstract public function response_area_read_only($name, question_attempt $qa,
+            question_attempt_step $step, $lines, $context);
 
     /**
      * Render the students respone when the question is in read-only mode.
@@ -340,13 +339,13 @@ abstract class qtype_fileresponse_format_renderer_base extends plugin_renderer_b
      * @param object $context the context teh output belongs to.
      * @return string html to display the response for editing.
      */
-    public abstract function response_area_input($name, question_attempt $qa,
-        question_attempt_step $step, $lines, $context);
+    abstract public function response_area_input($name, question_attempt $qa,
+            question_attempt_step $step, $lines, $context);
 
     /**
      * @return string specific class name to add to the input element.
      */
-    protected abstract function class_name();
+    abstract protected function class_name();
 }
 
 /**
